@@ -8,7 +8,7 @@ export default function Search({ navigation }) {
   const [cocktails, setCocktails] = useState([]);
 
   const fetchCocktails = () => {
-    fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${keyword}`)
+    fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${keyword}`) // fetches Cocktails by name
     .then(response => {
       if (!response.ok)
         throw new Error("Error in fetch: " + response.statusText);
@@ -17,6 +17,10 @@ export default function Search({ navigation }) {
     })
     .then(data => setCocktails(data.drinks))
     .catch(err => console.error(err))   
+  }
+
+  const navigateToDetailPage = (cocktail) => {
+    navigation.navigate("Cocktail Details", {cocktail});
   }
 
 
@@ -40,7 +44,7 @@ export default function Search({ navigation }) {
       <FlatList
         data={cocktails}
         renderItem={({item}) => 
-          <Card style={styles.card} mode="outlined">
+          <Card style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(item)}>
             <Card.Title title={item.strDrink} subtitle={item.strAlcoholic}/>
             <Card.Cover style={styles.cardCover} source={{ uri: item.strDrinkThumb }} />
           </Card>
@@ -59,12 +63,13 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: "5%",
+    marginBottom: "5%",
   },
   buttonContent: {
     flexDirection: "row-reverse",
   },
   card: {
-    marginTop: "5%",
+    marginBottom: "5%",
   },
   cardCover: {
     height: 300,
