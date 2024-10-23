@@ -1,5 +1,5 @@
-import { Text } from 'react-native-paper';
-import { View, Image, FlatList, StyleSheet, ScrollView } from 'react-native';
+import { Text, IconButton } from 'react-native-paper';
+import { View, Image, FlatList, StyleSheet, ScrollView, Share } from 'react-native';
 
 export default function CocktailDetailPage({ route }) {
     const {cocktail} = route.params;
@@ -14,10 +14,30 @@ export default function CocktailDetailPage({ route }) {
         }
     }
 
+    const ShareCocktail = async() => {
+      try {
+        const result = await Share.share({
+            message:`Look at this amazing Cocktail:\n\n${cocktail.strDrink} (${cocktail.strAlcoholic})\n\nIngredients:\n` +
+            ingredients
+               .map(item => `${item.measure ? item.measure + ' ' : ''}${item.ingredient}`) // checks if the ingredient has a measurement
+               .join('\n') + // adds the ingredients with a linebreak
+            `\n\nInstructions:\n${cocktail.strInstructions}`,
+        });
+    } catch (error) {
+        alert(error.message);
+    }
+    }
+
     return (
         <ScrollView style={styles.container}>
           <Image source={{ uri: cocktail.strDrinkThumb }} style={{ width: "100%", height: 400, }}/>  
           <View style={styles.description}>
+            <IconButton
+              icon="share"
+              mode="outlined"
+              size={30}
+              onPress={ShareCocktail}
+            />
             <Text variant="titleMedium">{cocktail.strAlcoholic}</Text>
             <View style={styles.paragraph}>
                 <Text variant="titleMedium">Ingredients:</Text>
