@@ -1,8 +1,10 @@
-import { Text, IconButton } from 'react-native-paper';
+import { Text, IconButton, Card } from 'react-native-paper';
 import { View, Image, FlatList, StyleSheet, ScrollView, Share } from 'react-native';
+import { useEffect, useState } from 'react';
 
-export default function CocktailDetailPage({ route }) {
+export default function CocktailDetailPage({ route, navigation }) {
     const {cocktail} = route.params;
+    const [similarCocktails, setSimilarCocktails] = useState([]);
 
     const ingredients = []; // Creates an Array of the ingredients with their measurements
     for (let i = 1; i <= 15; i++) { // Ingredients start at 1; 15 is the limit of ingredients of the API
@@ -13,6 +15,78 @@ export default function CocktailDetailPage({ route }) {
             ingredients.push({ ingredient, measure });
         }
     }
+    
+    useEffect(() => { // adds cocktails with similar name to similar cocktails list
+      setSimilarCocktails([]); // resets list in case of navigation to a similar cocktail, so the list updates correctly
+      const firstWord = cocktail.strDrink.trim().split(' ')[0];
+      
+      let i = 0;
+      let j = 0;
+      const existingCocktails = [];
+
+      fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${firstWord}`)
+      .then(response => {
+        if (!response.ok)
+          throw new Error("Error in fetch: " + response.statusText);
+    
+        return response.json();
+      })
+      .then(data => {
+        while (i < data.drinks.length && j < 6) { // makes sure not more than 6 cocktails are added
+          if(data.drinks[i].strDrink.toLowerCase() !== cocktail.strDrink.toLowerCase()) { // ensures the selected cocktail is not added
+            setSimilarCocktails((prevCocktails) => [...prevCocktails, data.drinks[i]]);
+            existingCocktails.push(data.drinks[i]);
+            j++;
+          }
+          i++;
+        }
+
+      })
+      .catch(err => console.error(err))
+
+      if(j < 6) { // if there are not enough similar named cocktails, search for some with the first ingredient        
+        fetch(`https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${cocktail.strIngredient1}`)
+        .then(response => {
+          if (!response.ok)
+            throw new Error("Error in fetch: " + response.statusText);
+      
+          return response.json();
+        })
+        .then(data => {
+          i = 0;
+          const detailedCocktailPromises = [];
+
+          while (i < data.drinks.length && j < 6) { // makes sure not more than 6 cocktails are added
+            if(data.drinks[i].strDrink.toLowerCase() !== cocktail.strDrink.toLowerCase() && !existingCocktails.some(existingCocktail => existingCocktail.strDrink.toLowerCase() === data.drinks[i].strDrink.toLowerCase())) { // TODO: ensures no duplicates get added
+              // fetch for detail data 
+              const detailPromise = fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${data.drinks[i].idDrink}`)
+               .then((response) => {
+                   if (!response.ok) throw new Error("Error in fetch: " + response.statusText);
+                   return response.json();
+               })
+               .then((detailsData) => detailsData.drinks[0])
+               .catch((error) => {
+                   console.error(err);
+                   return null;
+               });
+           
+           detailedCocktailPromises.push(detailPromise);
+           j++;
+       }
+       i++;
+   }
+
+      Promise.all(detailedCocktailPromises)
+       .then((detailedCocktails) => {
+           const validCocktails = detailedCocktails.filter(cocktail => cocktail !== null);
+           setSimilarCocktails((prevCocktails) => [...prevCocktails, ...validCocktails]);
+        })
+        .catch(err => console.error(err));
+      })
+      .catch(err => console.error(err));
+    }
+  }, [cocktail.strDrink]);
+
 
     const ShareCocktail = async() => {
       try {
@@ -25,7 +99,11 @@ export default function CocktailDetailPage({ route }) {
         });
     } catch (error) {
         alert(error.message);
+      }
     }
+
+    const navigateToDetailPage = (cocktail) => {
+      navigation.navigate("Cocktail Details", {cocktail});
     }
 
     return (
@@ -51,7 +129,21 @@ export default function CocktailDetailPage({ route }) {
                 <Text variant="titleMedium">Instructions:</Text>
                 <Text variant="bodyMedium">{cocktail.strInstructions}</Text>
             </View>
+
+            <View style={styles.paragraph}>
+              <Text variant="titleMedium">Similar Cocktails:</Text>
+              <ScrollView horizontal={true}>
+                {similarCocktails.map((similarCocktail, index) => (
+                  <Card key={index} style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(similarCocktail)}>
+                    <Card.Title title={similarCocktail.strDrink} subtitle={similarCocktail.strAlcoholic}/>
+                    <Card.Cover style={styles.cardCover} source={{ uri: similarCocktail.strDrinkThumb }} />
+                  </Card>
+                ))}
+              </ScrollView>
+            </View>
+            
           </View>
+
         </ScrollView>
       );
     
@@ -67,5 +159,13 @@ const styles = StyleSheet.create({
     paragraph: {
       marginTop: "5%",
     },
+    card: {
+      marginRight: 5,
+      width: 300,
+    },
+    cardCover: {
+      height: 300,
+    },
+
 
   });
