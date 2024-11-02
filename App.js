@@ -12,6 +12,9 @@ import Favourites from './Favourites';
 import ShoppingList from './ShoppingList';
 import CocktailDetailPage from './CocktailDetailPage';
 
+import { enableScreens } from 'react-native-screens';
+
+enableScreens();
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
