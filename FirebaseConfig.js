@@ -14,13 +14,12 @@ const firebaseConfig = {
   appId: "1:234515130363:web:fdd57896466dbe18548d5e"
 };
 
-// Initialize Firebase if it hasn’t been initialized already
+// Initialize Firebase if it has not been initialized already
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
   });
 
-// Initialize Authentication and Database
 export const db = getDatabase(app);
-export const signInAnonymouslyFunc = signInAnonymously; // Export the function itself
+export const signInAnonymouslyFunc = signInAnonymously; 

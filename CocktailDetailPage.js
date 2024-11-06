@@ -1,6 +1,9 @@
 import { Text, IconButton, Card } from 'react-native-paper';
 import { View, Image, FlatList, StyleSheet, ScrollView, Share } from 'react-native';
 import { useEffect, useState } from 'react';
+import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
+import { getDatabase, ref, push, Database } from "firebase/database";
+
 
 export default function CocktailDetailPage({ route, navigation }) {
     const {cocktail} = route.params;
@@ -106,6 +109,16 @@ export default function CocktailDetailPage({ route, navigation }) {
       navigation.navigate("Cocktail Details", {cocktail});
     }
 
+    const addFavourite = async() => {
+      const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
+      push(ref(db, `${userCredential.user.uid}/drinks/`), cocktail);  // saves the drink into the database
+    }
+
+    const addIngredient = async(ingredient) => {
+      const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
+      push(ref(db, `${userCredential.user.uid}/shoppinglist/`), ingredient);  // saves the ingredient into the database
+    }
+
     return (
         <ScrollView style={styles.container}>
           <Image source={{ uri: cocktail.strDrinkThumb }} style={{ width: "100%", height: 400, }}/>  
@@ -116,13 +129,27 @@ export default function CocktailDetailPage({ route, navigation }) {
               size={30}
               onPress={ShareCocktail}
             />
+            <IconButton
+              icon="heart-outline"
+              mode="outlined"
+              size={30}
+              onPress={addFavourite}
+            />
             <Text variant="titleMedium">{cocktail.strAlcoholic}</Text>
             <View style={styles.paragraph}>
                 <Text variant="titleMedium">Ingredients:</Text>
                 {ingredients.map((item, index) => (     // No Flatlist, because a Flatlist in Scrollview can lead to problems
-                        <Text key={index} variant="bodyMedium">
-                            {item.measure}{item.ingredient}
-                        </Text>
+                        <View key={index}>
+                          <Text variant="bodyMedium">
+                              {item.measure}{item.ingredient}
+                          </Text>
+                          <IconButton
+                            icon="cart-variant"
+                            mode="outlined"
+                            size={30}
+                            onPress={() => addIngredient(item.ingredient)}
+                          />
+                        </View>
                     ))}
             </View>
             <View style={styles.paragraph}>
