@@ -145,21 +145,24 @@ export default function Search({ navigation }) {
         data={cocktails}
         renderItem={({item}) => 
           <Card style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(item)}>
-            <Card.Title title={item.strDrink} subtitle={item.strAlcoholic}/>
+            <Card.Title title={item.strDrink} subtitle={item.strAlcoholic} subtitleStyle={{color: item.strAlcoholic === "Alcoholic" ? "red" : "green"}}/>
             <Card.Cover style={styles.cardCover} source={{ uri: item.strDrinkThumb }} />
           </Card>
         }
+        ListFooterComponent={
+          failedFetchedCocktails.length > 0 ? (
+            <Button
+              style={styles.footerButton}
+              mode="outlined"
+              onPress={fetchFurtherCocktails}
+            >
+              Show More
+            </Button>
+          ) : null
+        }
       />
 
-      {failedFetchedCocktails.length > 0 &&
-        <Button
-          style={styles.button}
-          mode="outlined"
-          onPress={fetchFurtherCocktails}
-        >
-          Show More
-        </Button>
-      }
+      
 
     </View>  
   );
@@ -178,6 +181,9 @@ const styles = StyleSheet.create({
   button: {
     marginTop: "2%",
     marginBottom: "3%",
+  },
+  footerButton: {
+    marginBottom: "5%",
   },
   buttonContent: {
     flexDirection: "row-reverse",
