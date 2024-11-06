@@ -2,6 +2,8 @@ import './gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
+import { useEffect } from 'react';
+import { auth, signInAnonymouslyFunc } from './FirebaseConfig';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -29,6 +31,19 @@ function SearchStack() { // Defines Stack Navigation for Search
 }
 
 export default function App() {
+
+  useEffect(() => {
+    const signInAnonymously = async () => {
+      try {
+        const userCredential = await signInAnonymouslyFunc(auth);
+        console.log("User ID:", userCredential.user.uid);
+      } catch (error) {
+        console.error("Anonymous sign-in failed:", error);
+      }
+    };
+  
+    signInAnonymously();
+  }, []);
   return (
     <PaperProvider>
       <NavigationContainer>
