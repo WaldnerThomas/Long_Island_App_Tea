@@ -1,6 +1,6 @@
-import { Button, IconButton, Text } from 'react-native-paper';
+import { IconButton, Text } from 'react-native-paper';
 import { useState, useEffect } from 'react';
-import { getDatabase, push, ref, onValue, remove } from 'firebase/database';
+import { ref, onValue, remove } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
 import { View, FlatList, StyleSheet } from 'react-native';
 
@@ -33,6 +33,7 @@ export default function ShoppingList({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {items.length === 0 && <Text style={styles.itemName}>Your shopping list is empty</Text>}  
      <FlatList 
       renderItem={({item}) => 
         <View style={styles.itemList}>
@@ -45,7 +46,7 @@ export default function ShoppingList({ navigation }) {
             onPress={() => deleteItem(item.key)}
           />
         </View>} 
-      data={items} />  
+      data={items} />
     </View>
   );
 }

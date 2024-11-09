@@ -30,6 +30,15 @@ function SearchStack() { // Defines Stack Navigation for Search
   );
 }
 
+function FavouritesStack() { // Defines Stack Navigation for Favourites
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Search" component={Favourites} options={{ headerShown: false }}/>
+      <Stack.Screen name="Cocktail Details" component={CocktailDetailPage} options={({ route }) => ({ title: route.params.cocktail.strDrink })}/>
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
 
   useEffect(() => {
@@ -50,7 +59,7 @@ export default function App() {
       <NavigationContainer>
         <Drawer.Navigator initialRouteName="Cocktail Search">
           <Drawer.Screen name="Cocktail Search" component={SearchStack} />
-          <Drawer.Screen name="Favourites" component={Favourites} />
+          <Drawer.Screen name="Favourites" component={FavouritesStack} />
           <Drawer.Screen name="Shopping List" component={ShoppingList} />
         </Drawer.Navigator>
       </NavigationContainer>
