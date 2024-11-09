@@ -1,6 +1,6 @@
 import { Text, Card } from 'react-native-paper';
 import { useState, useEffect } from 'react';
-import { ref, onValue, remove } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
 import { View, FlatList, StyleSheet } from 'react-native';
 
@@ -32,6 +32,7 @@ export default function Favourites({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {cocktails.length === 0 && <Text style={styles.emptyText}>You do not have any favourite cocktails</Text>}  
       <FlatList
         data={cocktails}
         renderItem={({item}) => 
@@ -57,6 +58,9 @@ const styles = StyleSheet.create({
   },
   cardCover: {
     height: 300,
+  },
+  emptyText: {
+    fontSize: 18,
   },
   
 });

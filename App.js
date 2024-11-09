@@ -46,7 +46,6 @@ export default function App() {
       try {
         const userCredential = await signInAnonymouslyFunc(auth);
         console.log("User ID:", userCredential.user.uid);
-        alert("User ID: " + userCredential.user.uid);
       } catch (error) {
         console.error("Anonymous sign-in failed:", error);
       }

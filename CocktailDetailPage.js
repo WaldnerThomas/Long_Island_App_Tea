@@ -2,12 +2,13 @@ import { Text, IconButton, Card } from 'react-native-paper';
 import { View, Image, FlatList, StyleSheet, ScrollView, Share } from 'react-native';
 import { useEffect, useState } from 'react';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
-import { getDatabase, ref, push, Database } from "firebase/database";
+import { ref, push, onValue, remove } from "firebase/database";
 
 
 export default function CocktailDetailPage({ route, navigation }) {
     const {cocktail} = route.params;
     const [similarCocktails, setSimilarCocktails] = useState([]);
+    const [favouriteCocktails, setFavouriteCocktails] = useState([]);
 
     const ingredients = []; // Creates an Array of the ingredients with their measurements
     for (let i = 1; i <= 15; i++) { // Ingredients start at 1; 15 is the limit of ingredients of the API
@@ -111,13 +112,38 @@ export default function CocktailDetailPage({ route, navigation }) {
 
     const addFavourite = async() => {
       const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
-      push(ref(db, `${userCredential.user.uid}/drinks/`), cocktail);  // saves the drink into the database
+
+      const matchingCocktail = favouriteCocktails.find((favouriteCocktail) => favouriteCocktail.value.idDrink === cocktail.idDrink);
+      
+      if (matchingCocktail) {
+        await remove(ref(db, `${userCredential.user.uid}/drinks/${matchingCocktail.key}`)); // deletes the drink from the database
+      } else {
+        push(ref(db, `${userCredential.user.uid}/drinks/`), cocktail); // saves the drink into the database        
+      }
+
     }
 
     const addIngredient = async(ingredient) => {
       const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
       push(ref(db, `${userCredential.user.uid}/shoppinglist/`), ingredient);  // saves the ingredient into the database
     }
+
+    const fetchFavourites = async() => {
+      const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
+      const itemsRef = ref(db, `${userCredential.user.uid}/drinks/`);
+      onValue(itemsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setFavouriteCocktails(Object.entries(data).map(([key, value]) => ({key,value}))); 
+        } else {
+          setFavouriteCocktails([]);
+        }
+      })  
+    }
+
+    useEffect(() => {   // makes sure the favouriteCocktails gets fetched on entering the page
+      fetchFavourites();      
+    }, []);
 
     return (
         <ScrollView style={styles.container}>
@@ -130,7 +156,8 @@ export default function CocktailDetailPage({ route, navigation }) {
               onPress={ShareCocktail}
             />
             <IconButton
-              icon="heart-outline"
+              icon= {favouriteCocktails.find((favouriteCocktail) => favouriteCocktail.value.idDrink === cocktail.idDrink) ? "heart" : "heart-outline"} 
+              iconColor="darkred"
               mode="outlined"
               size={30}
               onPress={addFavourite}
