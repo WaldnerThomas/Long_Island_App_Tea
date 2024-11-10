@@ -37,7 +37,8 @@ export default function ShoppingList({ navigation }) {
      <FlatList 
       renderItem={({item}) => 
         <View style={styles.itemList}>
-          <Text style={styles.itemName}>• {item.value}</Text>
+          <Text style={styles.itemName}>
+            • {item.value.amount} {item.value.ingredient}</Text>
           <IconButton
             icon="check"
             iconColor="green"

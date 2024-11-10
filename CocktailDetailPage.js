@@ -1,14 +1,15 @@
 import { Text, IconButton, Card } from 'react-native-paper';
-import { View, Image, FlatList, StyleSheet, ScrollView, Share } from 'react-native';
+import { View, Image, FlatList, StyleSheet, ScrollView, Share, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
-import { ref, push, onValue, remove } from "firebase/database";
+import { ref, push, onValue, remove, update } from "firebase/database";
 
 
 export default function CocktailDetailPage({ route, navigation }) {
     const {cocktail} = route.params;
     const [similarCocktails, setSimilarCocktails] = useState([]);
     const [favouriteCocktails, setFavouriteCocktails] = useState([]);
+    const [ShoppingList, setShoppingList] = useState([]);
 
     const ingredients = []; // Creates an Array of the ingredients with their measurements
     for (let i = 1; i <= 15; i++) { // Ingredients start at 1; 15 is the limit of ingredients of the API
@@ -125,7 +126,33 @@ export default function CocktailDetailPage({ route, navigation }) {
 
     const addIngredient = async(ingredient) => {
       const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
-      push(ref(db, `${userCredential.user.uid}/shoppinglist/`), ingredient);  // saves the ingredient into the database
+
+      const matchingIngredient = ShoppingList.find((shoppingListItem) => shoppingListItem.value.ingredient === ingredient)
+      if(matchingIngredient) {
+        console.log("SIMILAR INGREDIENT");
+        Alert.alert(
+          "Add To Shoppinglist",
+          "This item is already on your shoppinglist. Add another one?",
+          [
+            {
+              text: "No",
+            },
+            {
+              text: "Yes",
+              onPress: () => {
+                update(ref(db, `${userCredential.user.uid}/shoppinglist/${matchingIngredient.key}`), {amount: ++matchingIngredient.value.amount});  // saves the ingredient into the database        
+              },
+            },
+          ],
+          {
+            cancelable: true,
+          },
+        );
+      }
+      else {
+        console.log("NOT THE SAME");
+        push(ref(db, `${userCredential.user.uid}/shoppinglist/`), {amount: 1, ingredient: ingredient});  // saves the ingredient into the database        
+      }
     }
 
     const fetchFavourites = async() => {
@@ -143,6 +170,23 @@ export default function CocktailDetailPage({ route, navigation }) {
 
     useEffect(() => {   // makes sure the favouriteCocktails gets fetched on entering the page
       fetchFavourites();      
+    }, []);
+
+    const fetchShoppingList = async() => {
+      const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
+      const itemsRef = ref(db, `${userCredential.user.uid}/shoppinglist/`);
+      onValue(itemsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setShoppingList(Object.entries(data).map(([key, value]) => ({key,value}))); 
+        } else {
+          setShoppingList([]);
+        }
+      })  
+    }
+
+    useEffect(() => {   // makes sure the shoppingList gets fetched on entering the page
+      fetchShoppingList();      
     }, []);
 
     return (
@@ -168,7 +212,9 @@ export default function CocktailDetailPage({ route, navigation }) {
                 {ingredients.map((item, index) => (     // No Flatlist, because a Flatlist in Scrollview can lead to problems
                         <View key={index}>
                           <Text variant="bodyMedium">
-                              {item.measure}{item.ingredient}
+                              {item.measure}
+                              {item.measure && item.measure.endsWith(' ') ? '' : ' '}
+                              {item.ingredient}
                           </Text>
                           <IconButton
                             icon="cart-variant"
