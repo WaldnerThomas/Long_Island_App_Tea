@@ -2,7 +2,7 @@ import { IconButton, Text } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { ref, onValue, remove } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, Share } from 'react-native';
 
 
 export default function ShoppingList({ navigation }) {
@@ -31,9 +31,30 @@ export default function ShoppingList({ navigation }) {
     fetchData()
   }, []);
 
+  const shareShoppinglist = async() => {
+    try {
+      const result = await Share.share({
+          message:`Shoppinglist:\n` +
+          items
+             .map(item => `${item.value.amount} ${item.value.ingredient}`)
+             .join('\n')
+      });
+  } catch (error) {
+      alert(error.message);
+    }
+  }
+
   return (
     <View style={styles.container}>
-      {items.length === 0 && <Text style={styles.itemName}>Your shopping list is empty</Text>}  
+      {
+        items.length === 0 ? <Text style={styles.itemName}>Your shopping list is empty</Text>
+        : <IconButton
+            icon="share"
+            mode="outlined"
+            size={30}
+            onPress={shareShoppinglist}
+          />
+      }
      <FlatList 
       renderItem={({item}) => 
         <View style={styles.itemList}>
