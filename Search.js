@@ -126,7 +126,7 @@ export default function Search({ navigation }) {
       {searchOption !== "random" && ( // TextInput does not get rendered for random drink
       <TextInput
       style={styles.textInput}
-        label="Cocktail Name"
+        label={searchOption === "name" ? "Cocktail Name" : searchOption === "ingredient" ? "Cocktail Ingredient" : ""}
         value={keyword}
         onChangeText={text => setKeyword(text)}
         mode='outlined'
