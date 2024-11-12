@@ -231,7 +231,9 @@ export default function CocktailDetailPage({ route, navigation }) {
             </View>
 
             <View style={styles.paragraph}>
-              <Text variant="titleMedium">Similar Cocktails:</Text>
+              {similarCocktails.length !== 0 && 
+                <Text variant="titleMedium">Similar Cocktails:</Text>
+              } 
               <ScrollView horizontal={true}>
                 {similarCocktails.map((similarCocktail, index) => (
                   <Card key={index} style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(similarCocktail)}>
