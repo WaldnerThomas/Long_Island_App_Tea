@@ -33,7 +33,6 @@ export default function Search({ navigation }) {
     .then(response => {
       if (!response.ok)
         throw new Error("Error in fetch: " + response.statusText);
-  
       return response.json();
     })
     .then(data => {
@@ -67,11 +66,15 @@ export default function Search({ navigation }) {
         setCocktails(data.drinks)
         if (data.drinks === "no data found") {
           setCocktails([]); // clears list in case no data got found
-        }        
+        }
+        
         setLoading(false);
       }
     })
-    .catch(err => console.error(err))
+    .catch(err => {
+      console.error(err)
+      setLoading(false);
+    })
   }
 
   const fetchFurtherCocktails = () => { // fetches cocktails that failed previously
