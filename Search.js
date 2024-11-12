@@ -1,6 +1,6 @@
-import { Text, TextInput, Button, Card, SegmentedButtons } from 'react-native-paper';
+import { Text, TextInput, Button, Card, SegmentedButtons, Portal, Modal } from 'react-native-paper';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, ActivityIndicator } from 'react-native';
 
 
 export default function Search({ navigation }) {
@@ -10,7 +10,11 @@ export default function Search({ navigation }) {
 
   const [failedFetchedCocktails, setFailedFetchedCocktails] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   const fetchCocktails = () => {
+    setLoading(true);
+    setCocktails([]); // clear cocktail list
 
     setFailedFetchedCocktails([]); // clear failed fetches for new fetch request
 
@@ -36,7 +40,7 @@ export default function Search({ navigation }) {
       
       // TODO: Look if return is empty or not
       // TODO: API doesnt return after the first no one knows how many requests, look how to handle that, maybe "More Options" button or something
-      if (searchOption === "ingredient") {
+      if (searchOption === "ingredient" && Array.isArray(data.drinks) && data.drinks.length > 0) {
         const detailedCocktailPromises = data.drinks.map((drink) =>
           fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${drink.idDrink}`) // fetch further information through id
             .then((response) => {
@@ -47,6 +51,7 @@ export default function Search({ navigation }) {
             .catch((error) => {
               console.error(`Error fetching detailed cocktail for drinkId: ${drink.idDrink}`, error); // TODO: delete error message
               setFailedFetchedCocktails((prevFailed) => [...prevFailed, drink.idDrink]); // save the failed fetches in a list to fetch them later; they fail because API blocks access after a certain amount of requests
+              setLoading(false);
               return null;  
             })
         );
@@ -55,13 +60,18 @@ export default function Search({ navigation }) {
           .then((detailedCocktails) => {
             const validCocktails = detailedCocktails.filter(cocktail => cocktail !== null); // Filter out nulls
             setCocktails(validCocktails);
+            setLoading(false);
           })
           .catch((err) => console.error("Error processing detailed cocktail data: ", err));
       } else {
         setCocktails(data.drinks)
+        if (data.drinks === "no data found") {
+          setCocktails([]); // clears list in case no data got found
+        }        
+        setLoading(false);
       }
     })
-    .catch(err => console.error(err))   
+    .catch(err => console.error(err))
   }
 
   const fetchFurtherCocktails = () => { // fetches cocktails that failed previously
@@ -102,6 +112,13 @@ export default function Search({ navigation }) {
 
   return (
     <View style={styles.container}>
+
+        <Portal>
+          <Modal visible={loading}>
+            <ActivityIndicator size="large" color="lightblue"></ActivityIndicator>
+          </Modal>
+        </Portal>
+
       <SegmentedButtons
         value={searchOption}
         onValueChange={setSearchOption}
