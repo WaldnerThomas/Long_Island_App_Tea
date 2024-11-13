@@ -37,7 +37,7 @@ export default function Favourites({ navigation }) {
         data={cocktails}
         renderItem={({item}) => 
           <Card style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(item.value)}>
-            <Card.Title title={item.value.strDrink} subtitle={item.value.strAlcoholic} subtitleStyle={{color: item.value.strAlcoholic === "Alcoholic" ? "red" : "green"}}/>
+            <Card.Title title={item.value.strDrink} subtitle={item.value.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: item.value.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}/>
             <Card.Cover style={styles.cardCover} source={{ uri: item.value.strDrinkThumb }} />
           </Card>
         }
@@ -49,18 +49,22 @@ export default function Favourites({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#232323",
     paddingLeft: "5%",
     paddingRight: "5%",
   },
   card: {
     marginBottom: "5%",
+    backgroundColor: "#232323",
   },
   cardCover: {
     height: 300,
   },
   emptyText: {
     fontSize: 18,
+  },
+  text: {
+    color: "#fff",
   },
   
 });

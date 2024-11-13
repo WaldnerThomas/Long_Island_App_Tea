@@ -123,25 +123,42 @@ export default function Search({ navigation }) {
         </Portal>
 
       <SegmentedButtons
+        style={styles.segmentedButton}
         value={searchOption}
         onValueChange={setSearchOption}
         buttons={[
           {
             value: "name",
             label: "Name",
-            icon: "glass-cocktail",
+            icon: "glass-cocktail", 
+            checkedColor: "#fff",
+            uncheckedColor: "#000",
+            style: {
+              backgroundColor: searchOption === "name" ? "#0098ff" : "#fff",
+            },
           },
           {
             value: "ingredient",
             label: "Ingredient",
             icon: "fruit-grapes",
+            checkedColor: "#fff",
+            uncheckedColor: "#000",
+            style: {
+              backgroundColor: searchOption === "ingredient" ? "#0098ff" : "#fff",
+            },
           },
           {
              value: "random",
              label: "Random",
              icon: "emoticon-dead",
+             checkedColor: "#fff",
+             uncheckedColor: "#000",
+             style: {
+              backgroundColor: searchOption === "random" ? "#0098ff" : "#fff",
+            },
           },
-        ]}
+        ]}        
+        
       />
       {searchOption !== "random" && ( // TextInput does not get rendered for random drink
       <TextInput
@@ -150,12 +167,21 @@ export default function Search({ navigation }) {
         value={keyword}
         onChangeText={text => setKeyword(text)}
         mode='outlined'
+        textColor="#fff"
+        outlineColor="#fff"
+        activeOutlineColor="#0098ff"
+        theme={{
+          colors: {
+               onSurfaceVariant: "#fff" // colours the label
+          }
+      }}
       />  
       )}
       <Button
         icon="glass-cocktail"
         contentStyle={styles.buttonContent} // places icon on the right
         style={styles.button}
+        labelStyle={styles.buttonLabel}
         mode="outlined"
         onPress={fetchCocktails}
       >
@@ -165,7 +191,7 @@ export default function Search({ navigation }) {
         data={cocktails}
         renderItem={({item}) => 
           <Card style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(item)}>
-            <Card.Title title={item.strDrink} subtitle={item.strAlcoholic} subtitleStyle={{color: item.strAlcoholic === "Alcoholic" ? "red" : "green"}}/>
+            <Card.Title title={item.strDrink} subtitle={item.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: item.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}/>
             <Card.Cover style={styles.cardCover} source={{ uri: item.strDrinkThumb }} />
           </Card>
         }
@@ -191,16 +217,21 @@ export default function Search({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#232323",
     paddingLeft: "5%",
     paddingRight: "5%",
   },
   textInput: {
     marginTop: "2%",
+    backgroundColor: "#232323",
   },
   button: {
     marginTop: "2%",
     marginBottom: "3%",
+    backgroundColor: "#0098ff"
+  },
+  buttonLabel: {
+    color: "#fff",
   },
   footerButton: {
     marginBottom: "5%",
@@ -209,10 +240,17 @@ const styles = StyleSheet.create({
     flexDirection: "row-reverse",
   },
   card: {
+    backgroundColor: "#232323",
     marginBottom: "5%",
   },
   cardCover: {
     height: 300,
+  },
+  text: {
+    color: "#fff",
+  },
+  segmentedButton: {
+    marginTop: "2%"
   },
   
 });

@@ -193,31 +193,37 @@ export default function CocktailDetailPage({ route, navigation }) {
         <ScrollView style={styles.container}>
           <Image source={{ uri: cocktail.strDrinkThumb }} style={{ width: "100%", height: 400, }}/>  
           <View style={styles.description}>
-            <IconButton
-              icon="share"
-              mode="outlined"
-              size={30}
-              onPress={ShareCocktail}
-            />
-            <IconButton
-              icon= {favouriteCocktails.find((favouriteCocktail) => favouriteCocktail.value.idDrink === cocktail.idDrink) ? "heart" : "heart-outline"} 
-              iconColor="darkred"
-              mode="outlined"
-              size={30}
-              onPress={addFavourite}
-            />
-            <Text variant="titleMedium">{cocktail.strAlcoholic}</Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text variant="titleMedium" style={{color: cocktail.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}>{cocktail.strAlcoholic}</Text>
+              <View style={{flexDirection: "row"}}>
+                <IconButton
+                  icon="share"
+                  iconColor="#fff"
+                  mode="outlined"
+                  size={30}
+                  onPress={ShareCocktail}
+                />
+                <IconButton
+                  icon= {favouriteCocktails.find((favouriteCocktail) => favouriteCocktail.value.idDrink === cocktail.idDrink) ? "heart" : "heart-outline"} 
+                  iconColor="#a90000"
+                  mode="outlined"
+                  size={30}
+                  onPress={addFavourite}
+                />
+              </View>
+            </View>
             <View style={styles.paragraph}>
-                <Text variant="titleMedium">Ingredients:</Text>
+                <Text style={styles.text} variant="titleMedium">Ingredients:</Text>
                 {ingredients.map((item, index) => (     // No Flatlist, because a Flatlist in Scrollview can lead to problems
-                        <View key={index}>
-                          <Text variant="bodyMedium">
+                        <View key={index} style={{flexDirection: "row", alignItems: "center" }}>
+                          <Text style={styles.text} variant="bodyMedium">
                               {item.measure}
                               {item.measure && item.measure.endsWith(' ') ? '' : ' '}
                               {item.ingredient}
                           </Text>
                           <IconButton
                             icon="cart-variant"
+                            iconColor="#fff"
                             mode="outlined"
                             size={30}
                             onPress={() => addIngredient(item.ingredient)}
@@ -226,18 +232,18 @@ export default function CocktailDetailPage({ route, navigation }) {
                     ))}
             </View>
             <View style={styles.paragraph}>
-                <Text variant="titleMedium">Instructions:</Text>
-                <Text variant="bodyMedium">{cocktail.strInstructions}</Text>
+                <Text style={styles.text} variant="titleMedium">Instructions:</Text>
+                <Text style={styles.text} variant="bodyMedium">{cocktail.strInstructions}</Text>
             </View>
 
             <View style={styles.paragraph}>
               {similarCocktails.length !== 0 && 
-                <Text variant="titleMedium">Similar Cocktails:</Text>
+                <Text style={styles.text} variant="titleMedium">Similar Cocktails:</Text>
               } 
               <ScrollView horizontal={true}>
                 {similarCocktails.map((similarCocktail, index) => (
                   <Card key={index} style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(similarCocktail)}>
-                    <Card.Title title={similarCocktail.strDrink} subtitle={similarCocktail.strAlcoholic}/>
+                    <Card.Title title={similarCocktail.strDrink} subtitle={similarCocktail.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: similarCocktail.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}/>
                     <Card.Cover style={styles.cardCover} source={{ uri: similarCocktail.strDrinkThumb }} />
                   </Card>
                 ))}
@@ -253,7 +259,7 @@ export default function CocktailDetailPage({ route, navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-      backgroundColor: "#fff",  
+      backgroundColor: "#232323",  
     },
     description: {
       padding: "3%",
@@ -262,11 +268,18 @@ const styles = StyleSheet.create({
       marginTop: "5%",
     },
     card: {
+      backgroundColor: "#232323",
       marginRight: 5,
       width: 300,
     },
     cardCover: {
       height: 300,
+    },
+    text: {
+      color: "#fff",
+    },
+    headline: {
+      color: "#0076c7",
     },
 
 

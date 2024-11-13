@@ -23,7 +23,10 @@ const Stack = createNativeStackNavigator();
 
 function SearchStack() { // Defines Stack Navigation for Search
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerStyle: styles.stackNavigationHeader, 
+      headerTintColor: '#fff',
+    }}>
       <Stack.Screen name="Search" component={Search} options={{ headerShown: false }}/>
       <Stack.Screen name="Cocktail Details" component={CocktailDetailPage} options={({ route }) => ({ title: route.params.cocktail.strDrink })}/>
     </Stack.Navigator>
@@ -32,7 +35,10 @@ function SearchStack() { // Defines Stack Navigation for Search
 
 function FavouritesStack() { // Defines Stack Navigation for Favourites
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerStyle: styles.stackNavigationHeader, 
+      headerTintColor: '#fff',
+    }}>
       <Stack.Screen name="Search" component={Favourites} options={{ headerShown: false }}/>
       <Stack.Screen name="Cocktail Details" component={CocktailDetailPage} options={({ route }) => ({ title: route.params.cocktail.strDrink })}/>
     </Stack.Navigator>
@@ -56,7 +62,13 @@ export default function App() {
   return (
     <PaperProvider>
       <NavigationContainer>
-        <Drawer.Navigator initialRouteName="Cocktail Search">
+        <Drawer.Navigator initialRouteName="Cocktail Search" screenOptions={{
+            drawerStyle: styles.drawer,
+            drawerActiveTintColor: "#0098ff",
+            drawerInactiveTintColor: "#fff",
+            headerStyle: styles.drawerNavigationHeader, 
+            headerTintColor: '#fff',
+          }}>
           <Drawer.Screen name="Cocktail Search" component={SearchStack} />
           <Drawer.Screen name="Favourites" component={FavouritesStack} />
           <Drawer.Screen name="Shopping List" component={ShoppingList} />
@@ -65,3 +77,16 @@ export default function App() {
     </PaperProvider>
   );
 }
+
+
+const styles = StyleSheet.create({
+  drawerNavigationHeader: {
+    backgroundColor: "#0098ff",  
+  },
+  drawer: {
+    backgroundColor: "#232323",
+  },
+  stackNavigationHeader: {
+    backgroundColor: "#232323",  
+  }
+});

@@ -50,6 +50,7 @@ export default function ShoppingList({ navigation }) {
         items.length === 0 ? <Text style={styles.itemName}>Your shopping list is empty</Text>
         : <IconButton
             icon="share"
+            iconColor="#fff"
             mode="outlined"
             size={30}
             onPress={shareShoppinglist}
@@ -62,7 +63,7 @@ export default function ShoppingList({ navigation }) {
             • {item.value.amount} {item.value.ingredient}</Text>
           <IconButton
             icon="check"
-            iconColor="green"
+            iconColor="#2ae53b"
             mode="default"
             size={25}
             onPress={() => deleteItem(item.key)}
@@ -76,7 +77,7 @@ export default function ShoppingList({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#232323",  
     paddingHorizontal: "5%",
   },
   itemList: {
@@ -85,5 +86,6 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 18,
+    color: "#fff",
   }
 });
