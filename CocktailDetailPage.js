@@ -127,9 +127,15 @@ export default function CocktailDetailPage({ route, navigation }) {
     const addIngredient = async(ingredient) => {
       const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
 
-      const matchingIngredient = ShoppingList.find((shoppingListItem) => shoppingListItem.value.ingredient === ingredient)
-      if(matchingIngredient) {
-        console.log("SIMILAR INGREDIENT");
+      const matchingCheckedIngredient = ShoppingList.find(
+        (shoppingListItem) => shoppingListItem.value.ingredient === ingredient && shoppingListItem.value.isChecked
+      );
+    
+      const matchingUncheckedIngredient = ShoppingList.find(
+        (shoppingListItem) => shoppingListItem.value.ingredient === ingredient && !shoppingListItem.value.isChecked
+      );
+      
+      if(matchingCheckedIngredient || matchingUncheckedIngredient) {  // looks if ingredient is already in database
         Alert.alert(
           "Add To Shoppinglist",
           "This item is already on your shoppinglist. Add another one?",
@@ -140,7 +146,12 @@ export default function CocktailDetailPage({ route, navigation }) {
             {
               text: "Yes",
               onPress: () => {
-                update(ref(db, `${userCredential.user.uid}/shoppinglist/${matchingIngredient.key}`), {amount: ++matchingIngredient.value.amount});  // saves the ingredient into the database        
+                if(matchingUncheckedIngredient) {
+                  update(ref(db, `${userCredential.user.uid}/shoppinglist/${matchingUncheckedIngredient.key}`), {amount: ++matchingUncheckedIngredient.value.amount});  // increases ingredient amount in database        
+                }
+                else {
+                  push(ref(db, `${userCredential.user.uid}/shoppinglist/`), {amount: 1, ingredient: ingredient});  // saves the ingredient into the database        
+                }
               },
             },
           ],
@@ -150,7 +161,6 @@ export default function CocktailDetailPage({ route, navigation }) {
         );
       }
       else {
-        console.log("NOT THE SAME");
         push(ref(db, `${userCredential.user.uid}/shoppinglist/`), {amount: 1, ingredient: ingredient});  // saves the ingredient into the database        
       }
     }

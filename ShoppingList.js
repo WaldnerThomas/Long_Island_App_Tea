@@ -1,6 +1,6 @@
-import { IconButton, Text } from 'react-native-paper';
+import { Button, IconButton, Text } from 'react-native-paper';
 import { useState, useEffect } from 'react';
-import { ref, onValue, remove } from 'firebase/database';
+import { ref, onValue, remove, update } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
 import { View, FlatList, StyleSheet, Share } from 'react-native';
 
@@ -8,23 +8,38 @@ import { View, FlatList, StyleSheet, Share } from 'react-native';
 export default function ShoppingList({ navigation }) {
   const [items, setItems] = useState([]);
 
-  const fetchData = async() => {
-    const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
-    const itemsRef = ref(db, `${userCredential.user.uid}/shoppinglist/`);
-    onValue(itemsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setItems(Object.entries(data).map(([key, value]) => ({key,value})));
-        
-      } else {
-        setItems([]);
-      }
-    })  
+  const fetchData = async () => {
+  const userCredential = await signInAnonymouslyFunc(auth);
+  const itemsRef = ref(db, `${userCredential.user.uid}/shoppinglist/`);
+  onValue(itemsRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      setItems(Object.entries(data).map(([key, value]) => ({ key, value, isChecked: value.isChecked || false}))); // set isChecked to false, if not set
+    } else {
+      setItems([]);
+    }
+  });
+}
+
+
+  // TODO: save check to database
+  const checkItem = async(itemKey) => {  
+    try {  
+      const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
+      const itemRef = ref(db, `${userCredential.user.uid}/shoppinglist/${itemKey}`);
+      await update(itemRef, {isChecked:true});
+
+      setItems((prevItems) => prevItems.map((item) => item.key === itemKey ? {...item, isChecked: true}: item)) // looks for the item and turns isChecked true      
+    
+    } catch (error) {
+      console.error("Error checking item:", error);
+    }
+  
   }
 
-  const deleteItem = async(item) => {
+  const clearShoppinglist = async() => {
     const userCredential = await signInAnonymouslyFunc(auth);   // gets the unique user id
-    await remove(ref(db, `${userCredential.user.uid}/shoppinglist/${item}`));
+    await remove(ref(db, `${userCredential.user.uid}/shoppinglist`));
   }
 
   useEffect(() => {   // makes sure the data gets fetched on entering the page
@@ -48,26 +63,40 @@ export default function ShoppingList({ navigation }) {
     <View style={styles.container}>
       {
         items.length === 0 ? <Text style={styles.itemName}>Your shopping list is empty</Text>
-        : <IconButton
-            icon="share"
-            iconColor="#fff"
-            mode="outlined"
-            size={30}
-            onPress={shareShoppinglist}
-          />
+        : <View style={styles.buttonContainer}>
+            <Button
+              icon="trash-can-outline"
+              contentStyle={styles.buttonContent} // places icon on the right
+              style={styles.button}
+              labelStyle={styles.buttonLabel}
+              mode="outlined"
+              onPress={clearShoppinglist}
+            >
+              Clear List
+            </Button>
+            <IconButton
+                icon="share"
+                iconColor="#fff"
+                mode="outlined"
+                size={30}
+                onPress={shareShoppinglist}
+              />
+          </View>
       }
      <FlatList 
       renderItem={({item}) => 
         <View style={styles.itemList}>
-          <Text style={styles.itemName}>
+          <Text style={[styles.itemName, item.isChecked && styles.itemChecked]}>
             • {item.value.amount} {item.value.ingredient}</Text>
-          <IconButton
-            icon="check"
-            iconColor="#2ae53b"
-            mode="default"
-            size={25}
-            onPress={() => deleteItem(item.key)}
-          />
+          {!item.isChecked &&
+            <IconButton
+              icon="check"
+              iconColor="#2ae53b"
+              mode="default"
+              size={25}
+              onPress={() => checkItem(item.key)}
+            />
+          }
         </View>} 
       data={items} />
     </View>
@@ -87,5 +116,25 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 18,
     color: "#fff",
-  }
+  },
+  button: {
+    backgroundColor: "#0098ff"
+  },
+  buttonLabel: {
+    color: "#fff",
+  },
+  buttonContent: {
+    flexDirection: "row-reverse",
+  },
+  buttonContainer: {
+    marginTop: "2%",
+    marginBottom: "3%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  itemChecked: {
+    textDecorationLine: "line-through",
+    color: "#888",
+  },
 });
