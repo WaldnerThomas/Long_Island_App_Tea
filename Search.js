@@ -78,6 +78,7 @@ export default function Search({ navigation }) {
   }
 
   const fetchFurtherCocktails = () => { // fetches cocktails that failed previously
+    setLoading(true);
     const oldFailedFetchedCocktails = failedFetchedCocktails;
     setFailedFetchedCocktails([]); // empty failed fetched cocktail list in case of further fetching errors
 
@@ -99,8 +100,12 @@ export default function Search({ navigation }) {
       .then((detailedCocktails) => {
         const validCocktails = detailedCocktails.filter(cocktail => cocktail !== null); // Filter out nulls
         setCocktails((prevCocktails) => [...prevCocktails, ...validCocktails]);
+        setLoading(false);
       })
-      .catch((err) => console.error("Error processing detailed cocktail data: ", err));
+      .catch((err) => {
+        console.error("Error processing detailed cocktail data: ", err);
+        setLoading(false);
+      });
   }
 
   const navigateToDetailPage = (cocktail) => {
@@ -199,6 +204,7 @@ export default function Search({ navigation }) {
           failedFetchedCocktails.length > 0 ? (
             <Button
               style={styles.footerButton}
+              labelStyle={styles.buttonLabel}
               mode="outlined"
               onPress={fetchFurtherCocktails}
             >
@@ -235,6 +241,7 @@ const styles = StyleSheet.create({
   },
   footerButton: {
     marginBottom: "5%",
+    backgroundColor: "#0098ff"
   },
   buttonContent: {
     flexDirection: "row-reverse",
