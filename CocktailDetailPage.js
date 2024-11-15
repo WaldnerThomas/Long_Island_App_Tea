@@ -1,6 +1,6 @@
 import { Text, IconButton, Card } from 'react-native-paper';
 import { View, Image, FlatList, StyleSheet, ScrollView, Share, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
 import { ref, push, onValue, remove, update } from "firebase/database";
 
@@ -20,6 +20,10 @@ export default function CocktailDetailPage({ route, navigation }) {
             ingredients.push({ ingredient, measure });
         }
     }
+
+    // References to the Scroll Views
+    const mainScrollViewRef = useRef(null);
+    const similarCocktailsScrollViewRef = useRef(null);
     
     useEffect(() => { // adds cocktails with similar name to similar cocktails list
       setSimilarCocktails([]); // resets list in case of navigation to a similar cocktail, so the list updates correctly
@@ -109,6 +113,9 @@ export default function CocktailDetailPage({ route, navigation }) {
 
     const navigateToDetailPage = (cocktail) => {
       navigation.navigate("Cocktail Details", {cocktail});
+      mainScrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false });  // resets main Scrollview
+      similarCocktailsScrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false });  // resets similar Cocktails Scrollview
+
     }
 
     const addFavourite = async() => {
@@ -157,7 +164,7 @@ export default function CocktailDetailPage({ route, navigation }) {
           ],
           {
             cancelable: true,
-          },
+          },  
         );
       }
       else {
@@ -200,7 +207,7 @@ export default function CocktailDetailPage({ route, navigation }) {
     }, []);
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView ref={mainScrollViewRef} style={styles.container}>
           <Image source={{ uri: cocktail.strDrinkThumb }} style={{ width: "100%", height: 400, }}/>  
           <View style={styles.description}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -250,7 +257,7 @@ export default function CocktailDetailPage({ route, navigation }) {
               {similarCocktails.length !== 0 && 
                 <Text style={styles.text} variant="titleMedium">Similar Cocktails:</Text>
               } 
-              <ScrollView horizontal={true}>
+              <ScrollView ref={similarCocktailsScrollViewRef} horizontal={true}>
                 {similarCocktails.map((similarCocktail, index) => (
                   <Card key={index} style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(similarCocktail)}>
                     <Card.Title title={similarCocktail.strDrink} subtitle={similarCocktail.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: similarCocktail.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}/>
