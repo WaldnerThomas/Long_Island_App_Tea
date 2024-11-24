@@ -1,19 +1,22 @@
 import { Text, TextInput, Button, Card, SegmentedButtons, Portal, Modal } from 'react-native-paper';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, FlatList, ActivityIndicator } from 'react-native';
 
 
 export default function Search({ navigation }) {
   const [keyword, setKeyword] = useState("");
   const [cocktails, setCocktails] = useState([]);
-  const [searchOption, setSearchOption] = useState("name");
+  const [searchNavigation, setSearchNavigation] = useState("name");
 
   const [failedFetchedCocktails, setFailedFetchedCocktails] = useState([]);
 
   const [loading, setLoading] = useState(false);
 
-  const fetchCocktails = () => {
+  const mainScrollViewRef = useRef(null);
+
+  const fetchCocktails = (searchOption) => {
     setLoading(true);
+    mainScrollViewRef.current.scrollToOffset({ animated: false, offset: 0 });
     setCocktails([]); // clear cocktail list
 
     setFailedFetchedCocktails([]); // clear failed fetches for new fetch request
@@ -24,6 +27,12 @@ export default function Search({ navigation }) {
     }
     else if(searchOption === "ingredient") { 
       url = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=`;
+    }
+    else if(searchOption === "alcoholic") {
+      url = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Alcoholic`;
+    }
+    else if(searchOption === "non alcoholic") {
+      url = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic`;
     }
     else if(searchOption === "random") {
       url = `https://www.thecocktaildb.com/api/json/v1/1/random.php`;
@@ -36,10 +45,10 @@ export default function Search({ navigation }) {
       return response.json();
     })
     .then(data => {
-      
+
       // TODO: Look if return is empty or not
       // TODO: API doesnt return after the first no one knows how many requests, look how to handle that, maybe "More Options" button or something
-      if (searchOption === "ingredient" && Array.isArray(data.drinks) && data.drinks.length > 0) {
+      if ((searchOption === "ingredient" || searchOption === "alcoholic" || searchOption === "non alcoholic") && Array.isArray(data.drinks) && data.drinks.length > 0) {
         const detailedCocktailPromises = data.drinks.map((drink) =>
           fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${drink.idDrink}`) // fetch further information through id
             .then((response) => {
@@ -113,10 +122,10 @@ export default function Search({ navigation }) {
   }
 
   useEffect(() => { // clears Keyword for random drink since API doesnt need a keyword
-    if(searchOption === "random") {
+    if(searchNavigation === "browse") {
       setKeyword("");
     }
-  }), [searchOption]
+  }), [searchNavigation]
 
   return (
     <View style={styles.container}>
@@ -129,8 +138,8 @@ export default function Search({ navigation }) {
 
       <SegmentedButtons
         style={styles.segmentedButton}
-        value={searchOption}
-        onValueChange={setSearchOption}
+        value={searchNavigation}
+        onValueChange={setSearchNavigation}
         buttons={[
           {
             value: "name",
@@ -139,7 +148,7 @@ export default function Search({ navigation }) {
             checkedColor: "#fff",
             uncheckedColor: "#000",
             style: {
-              backgroundColor: searchOption === "name" ? "#0098ff" : "#fff",
+              backgroundColor: searchNavigation === "name" ? "#0098ff" : "#fff",
             },
           },
           {
@@ -149,26 +158,26 @@ export default function Search({ navigation }) {
             checkedColor: "#fff",
             uncheckedColor: "#000",
             style: {
-              backgroundColor: searchOption === "ingredient" ? "#0098ff" : "#fff",
+              backgroundColor: searchNavigation === "ingredient" ? "#0098ff" : "#fff",
             },
           },
           {
-             value: "random",
-             label: "Random",
-             icon: "emoticon-dead",
+             value: "browse",
+             label: "Browse",
+             icon: "archive-search",
              checkedColor: "#fff",
              uncheckedColor: "#000",
              style: {
-              backgroundColor: searchOption === "random" ? "#0098ff" : "#fff",
+              backgroundColor: searchNavigation === "browse" ? "#0098ff" : "#fff",
             },
           },
         ]}        
         
       />
-      {searchOption !== "random" && ( // TextInput does not get rendered for random drink
+      {searchNavigation !== "browse" && ( // TextInput does not get rendered for random drink
       <TextInput
       style={styles.textInput}
-        label={searchOption === "name" ? "Cocktail Name" : searchOption === "ingredient" ? "Cocktail Ingredient" : ""}
+        label={searchNavigation === "name" ? "Cocktail Name" : searchNavigation === "ingredient" ? "Cocktail Ingredient" : ""}
         value={keyword}
         onChangeText={text => setKeyword(text)}
         mode='outlined'
@@ -182,17 +191,55 @@ export default function Search({ navigation }) {
       }}
       />  
       )}
-      <Button
-        icon="glass-cocktail"
-        contentStyle={styles.buttonContent} // places icon on the right
-        style={styles.button}
-        labelStyle={styles.buttonLabel}
-        mode="outlined"
-        onPress={fetchCocktails}
-      >
-        Search
-      </Button>
+
+      {searchNavigation !== "browse" ? // only render search button for name and ingredient
+        <Button
+          icon="glass-cocktail"
+          contentStyle={styles.buttonContent} // places icon on the right
+          style={styles.button}
+          labelStyle={styles.buttonLabel}
+          mode="outlined"
+          onPress={() => searchNavigation === "name" ? fetchCocktails("name") : fetchCocktails("ingredient")}
+        >
+          Search
+        </Button>
+        
+      : // render browse buttons
+        <View style={styles.browseButtons}>
+          <Button
+            icon="glass-mug-variant"
+            contentStyle={styles.buttonContent} // places icon on the right
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+            mode="outlined"
+            onPress={() => fetchCocktails("alcoholic")}
+          >
+            Alcoholic
+          </Button>
+          <Button
+            icon="glass-mug-variant-off"
+            contentStyle={styles.buttonContent} // places icon on the right
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+            mode="outlined"
+            onPress={() => fetchCocktails("non alcoholic")}
+          >
+            Non Alcoholic
+          </Button>
+          <Button
+            icon="emoticon-dead"
+            contentStyle={styles.buttonContent} // places icon on the right
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+            mode="outlined"
+            onPress={() => fetchCocktails("random")}
+          >
+            Random
+          </Button>
+        </View>}
+
       <FlatList
+        ref={mainScrollViewRef}
         data={cocktails}
         renderItem={({item}) => 
           <Card style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(item)}>
@@ -234,7 +281,8 @@ const styles = StyleSheet.create({
   button: {
     marginTop: "2%",
     marginBottom: "3%",
-    backgroundColor: "#0098ff"
+    backgroundColor: "#0098ff",
+    marginHorizontal: "2%",
   },
   buttonLabel: {
     color: "#fff",
@@ -258,6 +306,13 @@ const styles = StyleSheet.create({
   },
   segmentedButton: {
     marginTop: "2%"
+  },
+  browseButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
   },
   
 });
