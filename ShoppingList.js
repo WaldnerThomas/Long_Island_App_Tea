@@ -51,7 +51,9 @@ export default function ShoppingList({ navigation }) {
       const result = await Share.share({
           message:`Shoppinglist:\n` +
           items
-             .map(item => `${item.value.amount} ${item.value.ingredient}`)
+             .map(item => item.value.isChecked 
+              ? `${item.value.amount.toString().split('').map(char => char + '\u0336').join('')} ${item.value.ingredient.split('').map(char => char + '\u0336').join('')}` // crosses out text with unicode character
+              : `${item.value.amount} ${item.value.ingredient}`)
              .join('\n')
       });
   } catch (error) {
