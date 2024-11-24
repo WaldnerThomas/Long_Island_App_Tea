@@ -61,6 +61,7 @@ export default function App() {
   }, []);
   return (
     <PaperProvider>
+      <StatusBar style="light"/>
       <NavigationContainer>
         <Drawer.Navigator initialRouteName="Cocktail Search" screenOptions={{
             drawerStyle: styles.drawer,
