@@ -1,6 +1,6 @@
 import { Text, TextInput, Button, Card, SegmentedButtons, Portal, Modal } from 'react-native-paper';
 import { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, FlatList, ActivityIndicator, Image } from 'react-native';
 
 
 export default function Search({ navigation }) {
@@ -238,6 +238,14 @@ export default function Search({ navigation }) {
           </Button>
         </View>}
 
+      {cocktails.length <= 0 &&
+        <Image
+          source={require('./assets/icon.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      }
+
       <FlatList
         ref={mainScrollViewRef}
         data={cocktails}
@@ -313,6 +321,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 5,
+  },
+  logo: {
+    marginTop: "25%",
+    alignSelf: "center",
+    width: "80%",
+    height: undefined,
+    aspectRatio: 1,
   },
   
 });

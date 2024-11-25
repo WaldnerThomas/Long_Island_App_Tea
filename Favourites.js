@@ -2,7 +2,7 @@ import { Text, Card } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, Image } from 'react-native';
 
 
 export default function Favourites({ navigation }) {
@@ -32,7 +32,16 @@ export default function Favourites({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {cocktails.length === 0 && <Text style={styles.emptyText}>You do not have any favourite cocktails</Text>}  
+      {cocktails.length === 0 && 
+        <View>
+          <Text style={styles.placeholderText}>You do not have any favourite cocktails</Text>
+          <Image
+              source={require('./assets/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+        </View>
+      }  
       <FlatList
         data={cocktails}
         renderItem={({item}) => 
@@ -60,11 +69,21 @@ const styles = StyleSheet.create({
   cardCover: {
     height: 300,
   },
-  emptyText: {
-    fontSize: 18,
-  },
   text: {
     color: "#fff",
   },
-  
+  placeholderText: {
+    marginTop: "5%",
+    alignSelf: "center",
+    fontSize: 25,
+    color: "#fff",
+    textAlign: "center",
+  },
+  logo: {
+    marginTop: "40%",
+    alignSelf: "center",
+    width: "80%",
+    height: undefined,
+    aspectRatio: 1,
+  },
 });

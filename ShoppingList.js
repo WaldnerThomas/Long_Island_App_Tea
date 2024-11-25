@@ -2,7 +2,7 @@ import { Button, IconButton, Text } from 'react-native-paper';
 import { useState, useEffect } from 'react';
 import { ref, onValue, remove, update } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
-import { View, FlatList, StyleSheet, Share } from 'react-native';
+import { View, FlatList, StyleSheet, Share, Image } from 'react-native';
 
 
 export default function ShoppingList({ navigation }) {
@@ -64,7 +64,15 @@ export default function ShoppingList({ navigation }) {
   return (
     <View style={styles.container}>
       {
-        items.length === 0 ? <Text style={styles.itemName}>Your shopping list is empty</Text>
+        items.length === 0 
+        ? <View>
+            <Text style={styles.placeholderText}>Shoppinglist is empty</Text>
+            <Image
+              source={require('./assets/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
         : <View style={styles.buttonContainer}>
             <Button
               icon="trash-can-outline"
@@ -138,5 +146,19 @@ const styles = StyleSheet.create({
   itemChecked: {
     textDecorationLine: "line-through",
     color: "#888",
+  },
+  logo: {
+    marginTop: "40%",
+    alignSelf: "center",
+    width: "80%",
+    height: undefined,
+    aspectRatio: 1,
+  },
+  placeholderText: {
+    marginTop: "5%",
+    alignSelf: "center",
+    fontSize: 25,
+    color: "#fff",
+    textAlign: "center",
   },
 });
