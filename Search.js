@@ -82,6 +82,7 @@ export default function Search({ navigation }) {
     })
     .catch(err => {
       console.error(err)
+      alert("Whoops, something went wrong. Try again!");
       setLoading(false);
     })
   }
@@ -238,7 +239,7 @@ export default function Search({ navigation }) {
           </Button>
         </View>}
 
-      {cocktails.length <= 0 &&
+      {(!cocktails || cocktails.length <= 0) &&
         <Image
           source={require('./assets/icon.png')}
           style={styles.logo}
