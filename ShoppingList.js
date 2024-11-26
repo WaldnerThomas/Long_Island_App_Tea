@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { ref, onValue, remove, update } from 'firebase/database';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
 import { View, FlatList, StyleSheet, Share, Image } from 'react-native';
-
+import globalStyles from './globalStyles';
+import colours from './colours';
 
 export default function ShoppingList({ navigation }) {
   const [items, setItems] = useState([]);
@@ -62,23 +63,23 @@ export default function ShoppingList({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       {
         items.length === 0 
         ? <View>
-            <Text style={styles.placeholderText}>Shoppinglist is empty</Text>
+            <Text style={globalStyles.placeholderText}>Shoppinglist is empty</Text>
             <Image
               source={require('./assets/icon.png')}
-              style={styles.logo}
+              style={[globalStyles.logo, globalStyles.logoWithLargeMargin]}
               resizeMode="contain"
             />
           </View>
         : <View style={styles.buttonContainer}>
             <Button
               icon="trash-can-outline"
-              contentStyle={styles.buttonContent} // places icon on the right
+              contentStyle={globalStyles.buttonContent} // places icon on the right
               style={styles.button}
-              labelStyle={styles.buttonLabel}
+              labelStyle={globalStyles.buttonLabel}
               mode="outlined"
               onPress={clearShoppinglist}
             >
@@ -86,7 +87,7 @@ export default function ShoppingList({ navigation }) {
             </Button>
             <IconButton
                 icon="share"
-                iconColor="#fff"
+                iconColor={colours.text}
                 mode="outlined"
                 size={30}
                 onPress={shareShoppinglist}
@@ -96,12 +97,12 @@ export default function ShoppingList({ navigation }) {
      <FlatList 
       renderItem={({item}) => 
         <View style={styles.itemList}>
-          <Text style={[styles.itemName, item.isChecked && styles.itemChecked]}>
+          <Text style={[globalStyles.itemName, item.isChecked && styles.itemChecked]}>
             • {item.value.amount} {item.value.ingredient}</Text>
           {!item.isChecked &&
             <IconButton
               icon="check"
-              iconColor="#2ae53b"
+              iconColor={colours.checkmark}
               mode="default"
               size={25}
               onPress={() => checkItem(item.key)}
@@ -114,27 +115,12 @@ export default function ShoppingList({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#232323",  
-    paddingHorizontal: "5%",
-  },
   itemList: {
     flexDirection: "row",
     alignItems: "center",
   },
-  itemName: {
-    fontSize: 18,
-    color: "#fff",
-  },
   button: {
-    backgroundColor: "#0098ff"
-  },
-  buttonLabel: {
-    color: "#fff",
-  },
-  buttonContent: {
-    flexDirection: "row-reverse",
+    backgroundColor: colours.primary,
   },
   buttonContainer: {
     marginTop: "2%",
@@ -145,20 +131,6 @@ const styles = StyleSheet.create({
   },
   itemChecked: {
     textDecorationLine: "line-through",
-    color: "#888",
-  },
-  logo: {
-    marginTop: "40%",
-    alignSelf: "center",
-    width: "80%",
-    height: undefined,
-    aspectRatio: 1,
-  },
-  placeholderText: {
-    marginTop: "5%",
-    alignSelf: "center",
-    fontSize: 25,
-    color: "#fff",
-    textAlign: "center",
+    color: colours.crossedOutText,
   },
 });

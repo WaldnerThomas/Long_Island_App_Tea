@@ -15,6 +15,7 @@ import ShoppingList from './ShoppingList';
 import CocktailDetailPage from './CocktailDetailPage';
 
 import { enableScreens } from 'react-native-screens';
+import colours from './colours';
 
 enableScreens();
 
@@ -65,10 +66,10 @@ export default function App() {
       <NavigationContainer>
         <Drawer.Navigator initialRouteName="Cocktail Search" screenOptions={{
             drawerStyle: styles.drawer,
-            drawerActiveTintColor: "#0098ff",
-            drawerInactiveTintColor: "#fff",
+            drawerActiveTintColor: colours.primary,
+            drawerInactiveTintColor: colours.text,
             headerStyle: styles.drawerNavigationHeader, 
-            headerTintColor: '#fff',
+            headerTintColor: colours.text,
           }}>
           <Drawer.Screen name="Cocktail Search" component={SearchStack} />
           <Drawer.Screen name="Favourites" component={FavouritesStack} />
@@ -82,12 +83,12 @@ export default function App() {
 
 const styles = StyleSheet.create({
   drawerNavigationHeader: {
-    backgroundColor: "#0098ff",  
+    backgroundColor: colours.primary,  
   },
   drawer: {
-    backgroundColor: "#232323",
+    backgroundColor: colours.background,
   },
   stackNavigationHeader: {
-    backgroundColor: "#232323",  
+    backgroundColor: colours.background,  
   }
 });

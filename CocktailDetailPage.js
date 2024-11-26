@@ -3,7 +3,8 @@ import { View, Image, FlatList, StyleSheet, ScrollView, Share, Alert } from 'rea
 import { useEffect, useRef, useState } from 'react';
 import { db, signInAnonymouslyFunc, auth } from './FirebaseConfig';
 import { ref, push, onValue, remove, update } from "firebase/database";
-
+import globalStyles from './globalStyles';
+import colours from './colours';
 
 export default function CocktailDetailPage({ route, navigation }) {
     const {cocktail} = route.params;
@@ -211,18 +212,18 @@ export default function CocktailDetailPage({ route, navigation }) {
           <Image source={{ uri: cocktail.strDrinkThumb }} style={{ width: "100%", height: 400, }}/>  
           <View style={styles.description}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text variant="titleMedium" style={{color: cocktail.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}>{cocktail.strAlcoholic}</Text>
+              <Text variant="titleMedium" style={{color: cocktail.strAlcoholic === "Alcoholic" ? colours.alcoholic : colours.nonalcoholic}}>{cocktail.strAlcoholic}</Text>
               <View style={{flexDirection: "row"}}>
                 <IconButton
                   icon="share"
-                  iconColor="#fff"
+                  iconColor= {colours.text}
                   mode="outlined"
                   size={30}
                   onPress={ShareCocktail}
                 />
                 <IconButton
                   icon= {favouriteCocktails.find((favouriteCocktail) => favouriteCocktail.value.idDrink === cocktail.idDrink) ? "heart" : "heart-outline"} 
-                  iconColor="#a90000"
+                  iconColor={colours.favourite}
                   mode="outlined"
                   size={30}
                   onPress={addFavourite}
@@ -240,7 +241,7 @@ export default function CocktailDetailPage({ route, navigation }) {
                           </Text>
                           <IconButton
                             icon="cart-variant"
-                            iconColor="#fff"
+                            iconColor={colours.text}
                             mode="outlined"
                             size={30}
                             onPress={() => addIngredient(item.ingredient)}
@@ -260,8 +261,8 @@ export default function CocktailDetailPage({ route, navigation }) {
               <ScrollView ref={similarCocktailsScrollViewRef} horizontal={true}>
                 {similarCocktails.map((similarCocktail, index) => (
                   <Card key={index} style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(similarCocktail)}>
-                    <Card.Title title={similarCocktail.strDrink} subtitle={similarCocktail.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: similarCocktail.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}/>
-                    <Card.Cover style={styles.cardCover} source={{ uri: similarCocktail.strDrinkThumb }} />
+                    <Card.Title title={similarCocktail.strDrink} subtitle={similarCocktail.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: similarCocktail.strAlcoholic === "Alcoholic" ? colours.alcoholic : colours.nonalcoholic}}/>
+                    <Card.Cover style={globalStyles.cardCover} source={{ uri: similarCocktail.strDrinkThumb }} />
                   </Card>
                 ))}
               </ScrollView>
@@ -276,7 +277,7 @@ export default function CocktailDetailPage({ route, navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-      backgroundColor: "#232323",  
+      backgroundColor: colours.background,  
     },
     description: {
       padding: "3%",
@@ -285,19 +286,11 @@ const styles = StyleSheet.create({
       marginTop: "5%",
     },
     card: {
-      backgroundColor: "#232323",
+      backgroundColor: colours.background,
       marginRight: 5,
       width: 300,
     },
-    cardCover: {
-      height: 300,
-    },
     text: {
-      color: "#fff",
+      color: colours.text,
     },
-    headline: {
-      color: "#0076c7",
-    },
-
-
   });

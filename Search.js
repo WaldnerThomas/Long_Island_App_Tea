@@ -1,6 +1,8 @@
 import { Text, TextInput, Button, Card, SegmentedButtons, Portal, Modal } from 'react-native-paper';
 import { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, FlatList, ActivityIndicator, Image } from 'react-native';
+import globalStyles from './globalStyles';
+import colours from './colours';
 
 
 export default function Search({ navigation }) {
@@ -129,7 +131,7 @@ export default function Search({ navigation }) {
   }), [searchNavigation]
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
 
         <Portal>
           <Modal visible={loading}>
@@ -138,7 +140,7 @@ export default function Search({ navigation }) {
         </Portal>
 
       <SegmentedButtons
-        style={styles.segmentedButton}
+        style={globalStyles.segmentedButton}
         value={searchNavigation}
         onValueChange={setSearchNavigation}
         buttons={[
@@ -146,30 +148,30 @@ export default function Search({ navigation }) {
             value: "name",
             label: "Name",
             icon: "glass-cocktail", 
-            checkedColor: "#fff",
-            uncheckedColor: "#000",
+            checkedColor: colours.text,
+            uncheckedColor: colours.secondaryText,
             style: {
-              backgroundColor: searchNavigation === "name" ? "#0098ff" : "#fff",
+              backgroundColor: searchNavigation === "name" ? colours.primary : colours.secondary,
             },
           },
           {
             value: "ingredient",
             label: "Ingredient",
             icon: "fruit-grapes",
-            checkedColor: "#fff",
-            uncheckedColor: "#000",
+            checkedColor: colours.text,
+            uncheckedColor: colours.secondaryText,
             style: {
-              backgroundColor: searchNavigation === "ingredient" ? "#0098ff" : "#fff",
+              backgroundColor: searchNavigation === "ingredient" ? colours.primary : colours.secondary,
             },
           },
           {
              value: "browse",
              label: "Browse",
              icon: "archive-search",
-             checkedColor: "#fff",
-             uncheckedColor: "#000",
+             checkedColor: colours.text,
+             uncheckedColor: colours.secondaryText,
              style: {
-              backgroundColor: searchNavigation === "browse" ? "#0098ff" : "#fff",
+              backgroundColor: searchNavigation === "browse" ? colours.primary : colours.secondary,
             },
           },
         ]}        
@@ -177,17 +179,17 @@ export default function Search({ navigation }) {
       />
       {searchNavigation !== "browse" && ( // TextInput does not get rendered for random drink
       <TextInput
-      style={styles.textInput}
+      style={globalStyles.textInput}
         label={searchNavigation === "name" ? "Cocktail Name" : searchNavigation === "ingredient" ? "Cocktail Ingredient" : ""}
         value={keyword}
         onChangeText={text => setKeyword(text)}
         mode='outlined'
-        textColor="#fff"
-        outlineColor="#fff"
-        activeOutlineColor="#0098ff"
+        textColor={colours.text}
+        outlineColor={colours.text}
+        activeOutlineColor= {colours.primary}
         theme={{
           colors: {
-               onSurfaceVariant: "#fff" // colours the label
+               onSurfaceVariant: colours.text // colours the label
           }
       }}
       />  
@@ -196,9 +198,9 @@ export default function Search({ navigation }) {
       {searchNavigation !== "browse" ? // only render search button for name and ingredient
         <Button
           icon="glass-cocktail"
-          contentStyle={styles.buttonContent} // places icon on the right
+          contentStyle={globalStyles.buttonContent} // places icon on the right
           style={styles.button}
-          labelStyle={styles.buttonLabel}
+          labelStyle={globalStyles.buttonLabel}
           mode="outlined"
           onPress={() => searchNavigation === "name" ? fetchCocktails("name") : fetchCocktails("ingredient")}
         >
@@ -206,12 +208,12 @@ export default function Search({ navigation }) {
         </Button>
         
       : // render browse buttons
-        <View style={styles.browseButtons}>
+        <View style={globalStyles.browseButtons}>
           <Button
             icon="glass-mug-variant"
-            contentStyle={styles.buttonContent} // places icon on the right
+            contentStyle={globalStyles.buttonContent} // places icon on the right
             style={styles.button}
-            labelStyle={styles.buttonLabel}
+            labelStyle={globalStyles.buttonLabel}
             mode="outlined"
             onPress={() => fetchCocktails("alcoholic")}
           >
@@ -219,9 +221,9 @@ export default function Search({ navigation }) {
           </Button>
           <Button
             icon="glass-mug-variant-off"
-            contentStyle={styles.buttonContent} // places icon on the right
+            contentStyle={globalStyles.buttonContent} // places icon on the right
             style={styles.button}
-            labelStyle={styles.buttonLabel}
+            labelStyle={globalStyles.buttonLabel}
             mode="outlined"
             onPress={() => fetchCocktails("non alcoholic")}
           >
@@ -229,9 +231,9 @@ export default function Search({ navigation }) {
           </Button>
           <Button
             icon="emoticon-dead"
-            contentStyle={styles.buttonContent} // places icon on the right
+            contentStyle={globalStyles.buttonContent} // places icon on the right
             style={styles.button}
-            labelStyle={styles.buttonLabel}
+            labelStyle={globalStyles.buttonLabel}
             mode="outlined"
             onPress={() => fetchCocktails("random")}
           >
@@ -242,7 +244,7 @@ export default function Search({ navigation }) {
       {(!cocktails || cocktails.length <= 0) &&
         <Image
           source={require('./assets/icon.png')}
-          style={styles.logo}
+          style={[globalStyles.logo, globalStyles.logoWithSmallMargin]}
           resizeMode="contain"
         />
       }
@@ -251,16 +253,16 @@ export default function Search({ navigation }) {
         ref={mainScrollViewRef}
         data={cocktails}
         renderItem={({item}) => 
-          <Card style={styles.card} mode="outlined" onPress={() => navigateToDetailPage(item)}>
-            <Card.Title title={item.strDrink} subtitle={item.strAlcoholic} titleStyle={styles.text} subtitleStyle={{color: item.strAlcoholic === "Alcoholic" ? "#e52a2a" : "#2ae53b"}}/>
-            <Card.Cover style={styles.cardCover} source={{ uri: item.strDrinkThumb }} />
+          <Card style={globalStyles.card} mode="outlined" onPress={() => navigateToDetailPage(item)}>
+            <Card.Title title={item.strDrink} subtitle={item.strAlcoholic} titleStyle={globalStyles.itemName} subtitleStyle={{color: item.strAlcoholic === "Alcoholic" ? colours.alcoholic : colours.nonalcoholic}}/>
+            <Card.Cover style={globalStyles.cardCover} source={{ uri: item.strDrinkThumb }} />
           </Card>
         }
         ListFooterComponent={
           failedFetchedCocktails.length > 0 ? (
             <Button
-              style={styles.footerButton}
-              labelStyle={styles.buttonLabel}
+              style={globalStyles.footerButton}
+              labelStyle={globalStyles.buttonLabel}
               mode="outlined"
               onPress={fetchFurtherCocktails}
             >
@@ -277,58 +279,10 @@ export default function Search({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#232323",
-    paddingLeft: "5%",
-    paddingRight: "5%",
-  },
-  textInput: {
-    marginTop: "2%",
-    backgroundColor: "#232323",
-  },
   button: {
     marginTop: "2%",
     marginBottom: "3%",
-    backgroundColor: "#0098ff",
+    backgroundColor: colours.primary,
     marginHorizontal: "2%",
   },
-  buttonLabel: {
-    color: "#fff",
-  },
-  footerButton: {
-    marginBottom: "5%",
-    backgroundColor: "#0098ff"
-  },
-  buttonContent: {
-    flexDirection: "row-reverse",
-  },
-  card: {
-    backgroundColor: "#232323",
-    marginBottom: "5%",
-  },
-  cardCover: {
-    height: 300,
-  },
-  text: {
-    color: "#fff",
-  },
-  segmentedButton: {
-    marginTop: "2%"
-  },
-  browseButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 5,
-  },
-  logo: {
-    marginTop: "25%",
-    alignSelf: "center",
-    width: "80%",
-    height: undefined,
-    aspectRatio: 1,
-  },
-  
 });
